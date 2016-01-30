@@ -8,9 +8,10 @@
 <script type="text/javascript">
 var canvas;
 var ctx;
-var W;
-var H;
+var W, H;
 var masses;
+var isMouseDown;
+var mouseX, mouseY;
 
 var FPS = 60;
 var G = 100;
@@ -29,6 +30,19 @@ $(function() {
 	jcan.css("width", W);
 	jcan.css("height", H);
 
+	isMouseDown = false;
+	jcan.mousedown(function() {
+		isMouseDown = true;
+	});
+	jcan.mouseup(function() {
+		isMouseDown = false;
+	});
+
+	jcan.mousemove(function(e) {
+		mouseX = e.pageX;
+		mouseY = e.pageY;
+	});
+
 	setup();
 	runID = setInterval(run, 1000 / FPS);
 });
@@ -37,17 +51,26 @@ function setup() {
 	// ctx.fillRect(10, 10, W - 20, H - 20);
 
 	masses = [];
+
 	for (var i = 0; i < NBALLS; i++) {
 		var mass = {
 			x: randomsign() * Math.pow(Math.random(), 2) * W / 2 + W / 2,
 			y: randomsign() * Math.pow(Math.random(), 2) * H / 2 + H / 2,
 			m: 10 + Math.random() * 100,
-			vx: 4 * Math.random() - 2,
-			vy: 4 * Math.random() - 2
+			vx: 0,
+			vy: 0,
+			real: true
 		};
-
 		masses.push(mass);
 	}
+	masses.push({
+		x: 0,
+		y: 0,
+		m: 0,
+		vx: 0,
+		vy: 0,
+		real: false
+	}); // dumby mass for when mouse pressed
 }
 
 function run() {
@@ -57,7 +80,7 @@ function run() {
 		// console.log(x);
 
 		masses.forEach(function(other, j) {
-			if (mass.m != 0 && (other.x != mass.x || other.y != mass.y)) {
+			if (mass.m != 0 && (i != j)) {
 				var accel = gforce(mass, other) / mass.m;
 				var direc = dir(mass, other);
 				mass.vx += direc.x * accel;
@@ -91,7 +114,21 @@ function run() {
 		mass.x += mass.vx;
 		mass.y += mass.vy;
 
-		if (mass.m != 0) {
+		if (isMouseDown) {
+			masses[NBALLS] = {
+				x: mouseX,
+				y: mouseY,
+				m: 30000,
+				vx: 0,
+				vy: 0,
+				real: false
+			};
+		}
+		else {
+			masses[NBALLS].m = 0;
+		}
+
+		if (mass.m != 0 && mass.real) {
 			ctx.beginPath();
 			ctx.arc(Math.floor(mass.x), Math.floor(mass.y), Math.pow(mass.m, 1.0/3), 0, 2 * Math.PI, false);
 			ctx.fill();
@@ -113,7 +150,7 @@ function randomsign() {
 }
 
 function gforce(a, b) {
-	// Newton's law of universal gravitation
+	// Newton's law of universal gravitation, dampened
 	return Math.min(50, (G / FPS) * a.m * b.m / (Math.pow(H + W, 2) / 10 + (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y)));
 }
 
