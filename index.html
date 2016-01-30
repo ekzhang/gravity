@@ -157,7 +157,7 @@ function randomsign() {
 
 function gforce(a, b) {
 	// Newton's law of universal gravitation, dampened
-	return Math.min(50, (G / FPS) * a.m * b.m / (Math.pow(H + W, 2) / 10 + (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y)));
+	return (G / FPS) * a.m * b.m / (Math.pow(H + W, 2) / 10 + (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y));
 }
 
 function dir(a, b) {
