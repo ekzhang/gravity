@@ -34,16 +34,25 @@ $(function() {
 	jcan.css("height", H);
 
 	isMouseDown = false;
-	jcan.bind('mousedown touchstart', function() {
+	jcan.bind('mousedown touchstart', function(e) {
+		e.preventDefault();
 		isMouseDown = true;
 	});
-	jcan.bind('mouseup touchend', function() {
+	jcan.bind('mouseup touchend', function(e) {
+		e.preventDefault();
 		isMouseDown = false;
 	});
 
-	jcan.bind('mousemove touchmove', function(e) {
+	jcan.bind('mousemove', function(e) {
+		e.preventDefault();
 		mouseX = e.pageX;
 		mouseY = e.pageY;
+	});
+	jcan.bind('touchmove', function(e) {
+		e.preventDefault();
+		var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+		mouseX = touch.pageX;
+		mouseY = touch.pageY;
 	});
 
 	setup();
