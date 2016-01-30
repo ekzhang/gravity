@@ -34,14 +34,14 @@ $(function() {
 	jcan.css("height", H);
 
 	isMouseDown = false;
-	jcan.mousedown(function() {
+	jcan.bind('mousedown touchstart', function() {
 		isMouseDown = true;
 	});
-	jcan.mouseup(function() {
+	jcan.bind('mouseup touchend', function() {
 		isMouseDown = false;
 	});
 
-	jcan.mousemove(function(e) {
+	jcan.bind('mousemove touchmove', function(e) {
 		mouseX = e.pageX;
 		mouseY = e.pageY;
 	});
