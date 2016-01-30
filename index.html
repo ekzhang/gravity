@@ -33,22 +33,34 @@ $(function() {
 	jcan.css("width", W);
 	jcan.css("height", H);
 
+	mouseX = W / 2;
+	mouseY = H / 2;
 	isMouseDown = false;
-	jcan.bind('mousedown touchstart', function(e) {
+	jcan.on('mousedown', function(e) {
 		e.preventDefault();
 		isMouseDown = true;
+		mouseX = e.pageX;
+		mouseY = e.pageY;
 	});
-	jcan.bind('mouseup touchend', function(e) {
+	jcan.on('touchstart', function(e) {
+		e.preventDefault();
+		isMouseDown = true;
+		var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+		mouseX = touch.pageX;
+		mouseY = touch.pageY;
+	})
+
+	jcan.on('mouseup touchend', function(e) {
 		e.preventDefault();
 		isMouseDown = false;
 	});
 
-	jcan.bind('mousemove', function(e) {
+	jcan.on('mousemove', function(e) {
 		e.preventDefault();
 		mouseX = e.pageX;
 		mouseY = e.pageY;
 	});
-	jcan.bind('touchmove', function(e) {
+	jcan.on('touchmove', function(e) {
 		e.preventDefault();
 		var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
 		mouseX = touch.pageX;
@@ -60,8 +72,6 @@ $(function() {
 });
 
 function setup() {
-	// ctx.fillRect(10, 10, W - 20, H - 20);
-
 	masses = [];
 
 	var h = Math.random();
