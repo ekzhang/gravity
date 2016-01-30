@@ -12,10 +12,10 @@ var W;
 var H;
 var masses;
 
-var FPS = 100;
-var G = 10;
+var FPS = 60;
+var G = 100;
 var WALL_DAMP = 0.5;
-var NBALLS = 200;
+var NBALLS = 100;
 
 $(function() {
 	// init
@@ -39,22 +39,15 @@ function setup() {
 	masses = [];
 	for (var i = 0; i < NBALLS; i++) {
 		var mass = {
-			x: Math.random() * W,
-			y: Math.random() * H,
+			x: randomsign() * Math.pow(Math.random(), 2) * W / 2 + W / 2,
+			y: randomsign() * Math.pow(Math.random(), 2) * H / 2 + H / 2,
 			m: 10 + Math.random() * 100,
-			vx: 2 * Math.random() - 1,
-			vy: 2 * Math.random() - 1
+			vx: 4 * Math.random() - 2,
+			vy: 4 * Math.random() - 2
 		};
 
 		masses.push(mass);
 	}
-	masses.push({
-		x: W / 2,
-		y: H / 2,
-		m: 20000,
-		vx: 0,
-		vy: 0
-	});
 }
 
 function run() {
@@ -98,21 +91,12 @@ function run() {
 		mass.x += mass.vx;
 		mass.y += mass.vy;
 
-		if (i != NBALLS && Math.abs(mass.x - masses[NBALLS].x) < 10 && Math.abs(mass.y - masses[NBALLS].y) < 10) {
-			comb.push(i);
-		}
-
 		if (mass.m != 0) {
 			ctx.beginPath();
 			ctx.arc(Math.floor(mass.x), Math.floor(mass.y), Math.pow(mass.m, 1.0/3), 0, 2 * Math.PI, false);
 			ctx.fill();
 			ctx.closePath();
 		}
-	});
-
-	comb.forEach(function(idx) {
-		masses[NBALLS].m += masses[idx].m;
-		masses[idx].m = 0;
 	});
 
 }
@@ -124,9 +108,13 @@ function sign(x) {
 	return x > 0 ? 1 : -1;
 }
 
+function randomsign() {
+	return Math.random() < 0.5 ? -1 : 1;
+}
+
 function gforce(a, b) {
 	// Newton's law of universal gravitation
-	return Math.min(50, (G / FPS) * a.m * b.m / ((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y)));
+	return Math.min(50, (G / FPS) * a.m * b.m / (Math.pow(H + W, 2) / 10 + (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y)));
 }
 
 function dir(a, b) {
