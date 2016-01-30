@@ -16,6 +16,8 @@ var mouseX, mouseY;
 var FPS = 60;
 var G = 100;
 var WALL_DAMP = 0.5;
+var GRAVITY_DAMP = 0.1;
+var MOUSE_POWER = 30000;
 var NBALLS = 100;
 var PHI_CONJ = 0.618033988749895;
 
@@ -123,7 +125,7 @@ function run() {
 			masses[NBALLS] = {
 				x: mouseX,
 				y: mouseY,
-				m: 30000,
+				m: MOUSE_POWER,
 				vx: 0,
 				vy: 0,
 				real: false
@@ -157,7 +159,7 @@ function randomsign() {
 
 function gforce(a, b) {
 	// Newton's law of universal gravitation, dampened
-	return (G / FPS) * a.m * b.m / (Math.pow(H + W, 2) / 10 + (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y));
+	return (G / FPS) * a.m * b.m / (Math.pow(H + W, 2) * GRAVITY_DAMP + (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y));
 }
 
 function dir(a, b) {
