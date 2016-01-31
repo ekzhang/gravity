@@ -18,8 +18,9 @@ var G = 100;
 var WALL_DAMP = 0.5;
 var GRAVITY_DAMP = 0.1;
 var MOUSE_POWER = 30000;
-var NBALLS = 100;
+var NBALLS = 200;
 var PHI_CONJ = 0.618033988749895;
+var VI_RANGE = 100;
 
 $(function() {
 	// init
@@ -79,11 +80,11 @@ function setup() {
 		h += PHI_CONJ;
 		h %= 1;
 		var mass = {
-			x: randomsign() * Math.pow(Math.random(), 2) * W / 2 + W / 2,
-			y: randomsign() * Math.pow(Math.random(), 2) * H / 2 + H / 2,
+			x: Math.random() * W,
+			y: Math.random() * H,
 			m: 10 + Math.random() * 100,
-			vx: 0,
-			vy: 0,
+			vx: (Math.random() * 2 - 1) * VI_RANGE / FPS,
+			vy: (Math.random() * 2 - 1) * VI_RANGE / FPS,
 			real: true,
 			color: hsv2rgb(h, 0.5, 0.95)
 		};
