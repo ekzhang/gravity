@@ -25,13 +25,13 @@ $(function() {
 	// init
 	W = document.body.clientWidth;
 	H = document.body.clientHeight;
-	var jcan = $("#canvas");
+	var jcan = $('#canvas');
 	canvas = jcan[0];
-	ctx = canvas.getContext("2d");
-	jcan.attr("width", W);
-	jcan.attr("height", H);
-	jcan.css("width", W);
-	jcan.css("height", H);
+	ctx = canvas.getContext('2d');
+	jcan.attr('width', W);
+	jcan.attr('height', H);
+	jcan.css('width', W);
+	jcan.css('height', H);
 
 	mouseX = W / 2;
 	mouseY = H / 2;
@@ -155,14 +155,47 @@ function run() {
 		}
 
 		if (mass.m != 0 && mass.real) {
-			ctx.fillStyle = mass.color;
-			ctx.beginPath();
-			ctx.arc(Math.floor(mass.x), Math.floor(mass.y), Math.pow(mass.m, 1.0/3), 0, 2 * Math.PI, false);
-			ctx.fill();
-			ctx.closePath();
+			fillCircle(mass.x, mass.y, Math.pow(mass.m, 1.0 / 3), mass.color);
 		}
 	});
+	
+	// draw CM
+	var cm = centerofmass();
+	drawCircle(cm.x, cm.y, 10, 'white');
+}
 
+function drawCircle(x, y, r, color) {
+	ctx.strokeStyle = color;
+	ctx.beginPath();
+	ctx.arc(Math.floor(x), Math.floor(y), r, 0, 2 * Math.PI, false);
+	ctx.stroke();
+	ctx.closePath();
+}
+
+function fillCircle(x, y, r, color) {
+	ctx.fillStyle = color;
+	ctx.beginPath();
+	ctx.arc(Math.floor(x), Math.floor(y), r, 0, 2 * Math.PI, false);
+	ctx.fill();
+	ctx.closePath();
+}
+
+function centerofmass() {
+	var ret = {
+		x: 0,
+		y: 0,
+		m: 0
+	}
+	masses.forEach(function(mass) {
+		if (mass.real) {
+			ret.x += mass.x * mass.m;
+			ret.y += mass.y * mass.m;
+			ret.m += mass.m;
+		}
+	});
+	ret.x /= ret.m;
+	ret.y /= ret.m;
+	return ret;
 }
 
 function sign(x) {
@@ -221,7 +254,7 @@ function hsv2rgb(h, s, v) {
 		}
 	}
 	return '#' + rgb.map(function(x){ 
-		return ("0" + Math.round(x*255).toString(16)).slice(-2);
+		return ('0' + Math.round(x*255).toString(16)).slice(-2);
 	}).join('');
 }
 </script>
