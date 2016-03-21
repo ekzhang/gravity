@@ -4,14 +4,12 @@ var W, H;
 var masses;
 var isMouseDown;
 var mouseX, mouseY;
-var func;
+var params;
 
-var FPS = 60;
 var G = 100;
 var WALL_DAMP = 0.5;
 var GRAVITY_DAMP = 0.1;
 var MOUSE_POWER = 30000;
-var NBALLS = 200;
 var PHI_CONJ = 0.618033988749895;
 var VI_RANGE = 100;
 
@@ -27,31 +25,37 @@ function getParameterByName(name, url) {
 }
 
 function setup() {
-	var q = getParameterByName('func');
-	if (q) {
-		func = (function(s) {
-			return function(x) {
-				return 1 - (eval(s) % 1);
-			};
-		})(q);
+	params = {
+		func     : Math.random,
+		amt      : 200,
+		accuracy : 60,
+	};
+	var func = getParameterByName('func');
+	var amt = getParameterByName('amt');
+	var accuracy = getParameterByName('accuracy');
+	if (func) {
+		params.func = (function(s) {
+			return function(x) { return 1 - (eval(s) % 1); };
+		})(func);
 	}
-	else {
-		func = function() {
-			return Math.random();
-		};
+	if (amt) {
+		params.amt = parseInt(amt);
+	}
+	if (accuracy) {
+		params.accuracy = parseInt(accuracy);
 	}
 
 	masses = [];
 	var h = Math.random();
-	for (var i = 0; i < NBALLS; i++) {
+	for (var i = 0; i < params.amt; i++) {
 		h += PHI_CONJ;
 		h %= 1;
 		var mass = {
 			x: h * W,
-			y: func(h) * H,
+			y: params.func(h) * H,
 			m: 10 + Math.random() * 100,
-			vx: (Math.random() * 2 - 1) * VI_RANGE / FPS,
-			vy: (Math.random() * 2 - 1) * VI_RANGE / FPS,
+			vx: (Math.random() * 2 - 1) * VI_RANGE / params.accuracy,
+			vy: (Math.random() * 2 - 1) * VI_RANGE / params.accuracy,
 			real: true,
 			color: hsv2rgb(h, 0.5, 0.95)
 		};
@@ -110,7 +114,7 @@ function sign(x) {
 
 function gforce(a, b) {
 	// Newton's law of universal gravitation, dampened
-	return (G / FPS) * a.m * b.m / (Math.pow(H + W, 2) * GRAVITY_DAMP + (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y));
+	return (G / params.accuracy) * a.m * b.m / (Math.pow(H + W, 2) * GRAVITY_DAMP + (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y));
 }
 
 function dir(a, b) {
@@ -158,7 +162,6 @@ function hsv2rgb(h, s, v) {
 }
 
 function run() {
-	ctx.clearRect(0, 0, W, H);
 	var comb = [];
 	masses.forEach(function(mass, i) {
 		// console.log(x);
@@ -199,7 +202,7 @@ function run() {
 		mass.y += mass.vy;
 
 		if (isMouseDown) {
-			masses[NBALLS] = {
+			masses[params.amt] = {
 				x: mouseX,
 				y: mouseY,
 				m: MOUSE_POWER,
@@ -209,9 +212,16 @@ function run() {
 			};
 		}
 		else {
-			masses[NBALLS].m = 0;
+			masses[params.amt].m = 0;
 		}
+	});
+}
 
+function draw() {
+	window.requestAnimationFrame(draw);
+
+	ctx.clearRect(0, 0, W, H);
+	masses.forEach(function(mass, i) {
 		if (mass.m != 0 && mass.real) {
 			fillCircle(mass.x, mass.y, Math.pow(mass.m, 1.0 / 3), mass.color);
 		}
@@ -220,8 +230,6 @@ function run() {
 	// draw CM
 	var cm = centerofmass();
 	drawCircle(cm.x, cm.y, 10, 'white');
-
-	window.requestAnimationFrame(run);
 }
 
 $(function() {
@@ -271,5 +279,6 @@ $(function() {
 	});
 
 	setup();
-	window.requestAnimationFrame(run);
+	setInterval(run, 1000 / params.accuracy);
+	window.requestAnimationFrame(draw);
 });
