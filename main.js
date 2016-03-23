@@ -1,5 +1,5 @@
 var canvas;
-var ctx;
+var ctx, ctx0;
 var W, H;
 var masses;
 var isMouseDown;
@@ -71,7 +71,7 @@ function setup() {
 	}); // dumby mass for when mouse pressed
 }
 
-function drawCircle(x, y, r, color) {
+function drawCircle(ctx, x, y, r, color) {
 	ctx.strokeStyle = color;
 	ctx.beginPath();
 	ctx.arc(Math.floor(x), Math.floor(y), r, 0, 2 * Math.PI, false);
@@ -79,7 +79,7 @@ function drawCircle(x, y, r, color) {
 	ctx.closePath();
 }
 
-function fillCircle(x, y, r, color) {
+function fillCircle(ctx, x, y, r, color) {
 	ctx.fillStyle = color;
 	ctx.beginPath();
 	ctx.arc(Math.floor(x), Math.floor(y), r, 0, 2 * Math.PI, false);
@@ -114,7 +114,8 @@ function sign(x) {
 
 function gforce(a, b) {
 	// Newton's law of universal gravitation, dampened
-	return (G / params.accuracy) * a.m * b.m / (Math.pow(H + W, 2) * GRAVITY_DAMP + (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y));
+	return (G / params.accuracy) * a.m * b.m / (Math.pow(H + W, 2) * GRAVITY_DAMP +
+			(a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y));
 }
 
 function dir(a, b) {
@@ -220,40 +221,71 @@ function run() {
 function draw() {
 	window.requestAnimationFrame(draw);
 
+	ctx0.fillStyle = 'rgba(0, 0, 0, 0.3)';
+	ctx0.fillRect(0, 0, W, H);
+	masses.forEach(function(a, i) {
+		/*
+		masses.forEach(function(b, j) {
+			if (Math.sqrt(((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y))) < 15) {
+				ctx0.strokeStyle = 'white';
+				ctx0.beginPath();
+				ctx0.moveTo(a.x, a.y);
+				ctx0.lineTo(b.x, b.y);
+				ctx0.stroke();
+				ctx0.closePath();
+			}
+		});
+		*/
+		if (a.real) fillCircle(ctx0, a.x, a.y, 2, 'white');
+	});
+
 	ctx.clearRect(0, 0, W, H);
+	ctx.drawImage(ctx0.elem, 0, 0);
 	masses.forEach(function(mass, i) {
 		if (mass.m != 0 && mass.real) {
-			fillCircle(mass.x, mass.y, Math.pow(mass.m, 1.0 / 3), mass.color);
+			fillCircle(ctx, mass.x, mass.y, Math.pow(mass.m, 1.0 / 3), mass.color);
 		}
 	});
 	
 	// draw CM
 	var cm = centerofmass();
-	drawCircle(cm.x, cm.y, 10, 'white');
+	drawCircle(ctx, cm.x, cm.y, 10, 'white');
 }
 
 $(function() {
 	// init
 	W = document.body.clientWidth;
 	H = document.body.clientHeight;
-	var jcan = $('#canvas');
-	canvas = jcan[0];
-	ctx = canvas.getContext('2d');
-	jcan.attr('width', W);
-	jcan.attr('height', H);
-	jcan.css('width', W);
-	jcan.css('height', H);
+
+	// make canvases
+	var $canvas = $('<canvas></canvas>');
+	$(document.body).append($canvas);
+
+	var $canvas0 = $('<canvas></canvas>');
+	ctx = $canvas[0].getContext('2d');
+	ctx.elem = $canvas[0];
+	ctx0 = $canvas0[0].getContext('2d');
+	ctx0.elem = $canvas0[0];
+	$canvas.attr('width', W);
+	$canvas.attr('height', H);
+	$canvas.css('width', W);
+	$canvas.css('height', H);
+	
+	$canvas0.attr('width', W);
+	$canvas0.attr('height', H);
+	$canvas0.css('width', W);
+	$canvas0.css('height', H);
 
 	mouseX = W / 2;
 	mouseY = H / 2;
 	isMouseDown = false;
-	jcan.on('mousedown', function(e) {
+	$canvas.on('mousedown', function(e) {
 		e.preventDefault();
 		isMouseDown = true;
 		mouseX = e.pageX;
 		mouseY = e.pageY;
 	});
-	jcan.on('touchstart', function(e) {
+	$canvas.on('touchstart', function(e) {
 		e.preventDefault();
 		isMouseDown = true;
 		var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
@@ -261,17 +293,17 @@ $(function() {
 		mouseY = touch.pageY;
 	})
 
-	jcan.on('mouseup touchend', function(e) {
+	$canvas.on('mouseup touchend', function(e) {
 		e.preventDefault();
 		isMouseDown = false;
 	});
 
-	jcan.on('mousemove', function(e) {
+	$canvas.on('mousemove', function(e) {
 		e.preventDefault();
 		mouseX = e.pageX;
 		mouseY = e.pageY;
 	});
-	jcan.on('touchmove', function(e) {
+	$canvas.on('touchmove', function(e) {
 		e.preventDefault();
 		var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
 		mouseX = touch.pageX;
