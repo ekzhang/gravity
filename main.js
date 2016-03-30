@@ -243,7 +243,7 @@ function draw() {
 	ctx.drawImage(ctx0.elem, 0, 0);
 	masses.forEach(function(mass, i) {
 		if (mass.m != 0 && mass.real) {
-			fillCircle(ctx, mass.x, mass.y, Math.pow(mass.m, 1.0 / 3), mass.color);
+			drawCircle(ctx, mass.x, mass.y, Math.pow(mass.m, 1.0 / 3), mass.color);
 		}
 	});
 	
