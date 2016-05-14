@@ -6,7 +6,7 @@ var mouseX, mouseY;
 var params;
 
 var G = 100;
-var WALL_DAMP = 0.5;
+var WALL_DAMP = 0;
 var GRAVITY_DAMP = 0.1;
 var MOUSE_POWER = 30000;
 var PHI_CONJ = 0.618033988749895;
